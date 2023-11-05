@@ -13,6 +13,11 @@ function Resolve-Icon {
     begin {
         $icons  = $script:userThemeData.Themes.Icon[$IconTheme]
         $colors = $script:colorSequences[$ColorTheme]
+        $doNotUseGlyphs = $icons.DoNotUseGlyphs
+        $linkIconName = if ($icons.Types.Link) { $icons.Types.Link } else { 'nf-md-arrow_right_thick' }
+        $linkIcon = if ($doNotUseGlyphs) { $linkIconName } else { $glyphs[$linkIconName] }
+        $fallbackDirectoryIcon = if ($doNotUseGlyphs) { '📁' } else { $glyphs['nf-oct-file_directory'] }
+        $fallbackFileIcon = if ($doNotUseGlyphs) { '📄' } else { $glyphs['nf-fa-file'] }
     }
 
     process {
@@ -41,7 +46,7 @@ function Resolve-Icon {
                 } else {
                     $colorSet = $script:colorReset
                 }
-                $displayInfo['Target'] = ' ' + $glyphs['nf-md-arrow_right_thick'] + ' ' + $FileInfo.Target
+                $displayInfo['Target'] = ' ' + $linkIcon + ' ' + $FileInfo.Target
                 break
             }
             'SymbolicLink' {
@@ -55,7 +60,7 @@ function Resolve-Icon {
                 } else {
                     $colorSet = $script:colorReset
                 }
-                $displayInfo['Target'] = ' ' + $glyphs['nf-md-arrow_right_thick'] + ' ' + $FileInfo.Target
+                $displayInfo['Target'] = ' ' + $linkIcon + ' ' + $FileInfo.Target
                 break
             } default {
                 if ($icons) {
@@ -82,9 +87,9 @@ function Resolve-Icon {
                         # Fallback if everything has gone horribly wrong
                         if (-not $iconName) {
                             if ($FileInfo.PSIsContainer) {
-                                $iconName = 'nf-oct-file_directory'
+                                $iconName = $fallbackDirectoryIcon
                             } else {
-                                $iconName = 'nf-fa-file'
+                                $iconName = $fallbackFileIcon
                             }
                         }
                     }
@@ -122,7 +127,7 @@ function Resolve-Icon {
             }
         }
         if ($iconName) {
-            $displayInfo['Icon'] = $glyphs[$iconName]
+            $displayInfo['Icon'] = if ($doNotUseGlyphs) { $iconName } else { $glyphs[$iconName] }
         } else {
             $displayInfo['Icon'] = $null
         }
